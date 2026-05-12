@@ -22,8 +22,6 @@ LOG_SRC = "/var/log/ctfuser"
 ARCHIVE_DIR = "/srv/myCTF"
 PROCESS_TARGETS = [
     "send_flag.py",
-    "send_flag.py",
-    "bind_shell.py",
     "bind_shell.py",
 ]
 
