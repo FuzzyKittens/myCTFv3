@@ -1,0 +1,182 @@
+{
+  "challenges": [
+    {
+      "id": 1,
+      "act": "Operation Overclock",
+      "level": "Intro",
+      "points": 25,
+      "flag": "CTF{aced_that_test}",
+      "python_script_to_run": "setup_environment.py",
+      "story": "🚀 Mission Briefing: Operation Overclock 💶\n\nYou’re 17 years old and already the Army’s best-kept secret.\n\nCodename: \"Bitstorm\"\nMOS: 17C – Cyber Operations Specialist\nCallsign: Ghostline\nClearance: Beyond Top Secret\n\nWhile your friends are grinding for XP in their favorite game, you’re leveling up in real life — inside a secret underground SOC, buried beneath Fort Meade. Recruited straight out of a high school hacking competition, you’ve been trained in offensive cyber operations, advanced recon, and digital infiltration. Your keyboard? A weapon. Your mind? Classified.\n\nNow comes your first real mission.\n\nIntel intercepted by SIGINT suggests that a rogue nation has developed a backdoor-ridden nuclear control system — and they’ve hidden the launch codes deep inside a fortress-like server buried in their command center. Our spies couldn’t breach it. Satellites couldn’t crack it. But you? You’ve got a shot.\n\nCommand has deployed you behind digital enemy lines. Your job? Get in. Find the codes. Get out. And maybe... leave a little “present” behind so they can’t pull this stunt again.\n\nThis isn’t a game. But it’s the mission you were born to play.\n\nOur troops on the ground intercepted the following message from a captured enemy soldier, but don't understand what it means. Can you help them out? If you crack it, this will be your next flag.\n\n Q1RGe2VuY3J5cHRfaGlkZGVuX2NvZGVzfQ=="
+    },
+    {
+      "id": 2,
+      "act": "Operation Intercept",
+      "level": "Associate",
+      "points": 50,
+      "flag": "CTF{encrypt_hidden_codes}",
+      "python_script_to_run": "send_flag.py",
+      "story": "🚀 Intel Briefing: Operation Intercept 📡\n\nEnemy comms have lit up like a Christmas tree.\n\nOur signal analysts just intercepted chatter from the front lines — something about a \"Phase-2 code drop.\" The pattern? Erratic. The payload? Encrypted. But one thing's for sure: they’re transmitting something important over the wire.\n\nThis is where you come in, Bitstorm.\n\nWe need you on the digital front, monitoring raw traffic for anything that smells like covert data exfiltration. Our analysts suspect they're embedding command sequences or flag fragments in live network streams. Old-school stealth, new-school tactics.\n\nIf you were in the field, you’d plant a tap on the cable. But here? You’ve got tools like 🧨 Wireshark and 🧵 netcat at your disposal. Subtle packet capture. Silent observation. Split-second timing.\n\nGet on the wire. Catch their signal. Whatever they’re transmitting — we need it before it reaches its destination.\n\nClock’s ticking, soldier. Let’s see what you're made of. Last bit of advice - the enemy might be transmitting more than just one piece of information, so leave nothing overlooked!!"
+    },
+    {
+      "id": 3,
+      "act": "Operation Initial Access",
+      "level": "Associate",
+      "points": 100,
+      "flag": "CTF{sn1ff3d_fr0m_th3_w1r3}",
+      "python_script_to_run": "bind_shell.py",
+      "story": "🛡️ Mission Briefing: Operation Initial Access 🔓\n\nWe’ve tracked the signal. We know where it’s coming from.\n\nThe enemy’s infrastructure is alive — and we’ve finally found a handful of IPs associated with their rogue digital command center. This is the gateway to their inner network. Somewhere inside is a trove of stolen data, command logs, maybe even the location of the nuclear codes.\n\nBut before we can breach the vault, we need to find the door.\n\nOur analysts believe some of the enemy’s machines are exposed to the internet. There may be open ports. Vulnerable services. Unpatched systems. But identifying them won’t be easy — not without the right tools.\n\nThat’s where you come in, Bitstorm.\n\nYou know what to do: get scanning. Tools like 🗠️ nmap or 🧵 netcat might just light the path. Once inside, we need intel: who are you logged in as? What’s lying around in those dusty home directories? Are there any other users lurking on the system?\n\nThis phase is about initial access and recon — the art of knowing before striking. Somewhere in that chaos... the next flag is waiting.\n\nMake your move, operator. Let’s make some noise behind enemy lines."
+    },
+    {
+      "id": 4,
+      "act": "Operation Lateral",
+      "level": "Senior",
+      "points": 200,
+      "flag": "CTF{w3_hav3_1n1t1@l_@cc3$$}",
+      "python_script_to_run": "build_enemy.py",
+      "story": "🚀 Live Orders: Operation Lateral 📌\n\nYou’ve impressed the brass, Bitstorm.\n\nYour access was clean. Quiet. Surgical. And now command is fully onboard — the general himself mentioned your callsign.\n\nSatellite imagery confirms heavy movement around the facility hosting the enemy’s most critical systems. Armed personnel. Trucks with hardline uplinks. Whatever they’re guarding in there? It’s big.\n\nThat’s why this next phase is all about intel.\n\nYou’re staying inside the system. Embedded. Watching. We need you to monitor for **any signs of new activity** — unexpected logins, strange processes, or files that suddenly appear in unusual places. This is classic cybertradecraft now. Quiet observation. Strategic curiosity.\n\nOh, and one more thing...\n\nOur cryptanalysis team intercepted a decrypted manual that suggests the enemy is hiding sensitive data inside ordinary-looking files. Nothing obvious. No giant blinking signs. They’re using a method called “steganography” to bury critical data where no one would think to look.\n\nYour mission: **Don’t overlook the overlooked.** Images, audio, documents — anything could be the container. Find what they tried to bury.\n\nKeep your head down and your eyes sharp, soldier. The flag’s there. You just have to uncover it."
+    },
+    {
+      "id": 5,
+      "act": "God Mode",
+      "level": "Expert",
+      "points": 500,
+      "flag": "CTF{1nfo_hidd3n_w1th1N}",
+      "python_script_to_run": "make_privesc.py",
+      "story": "🔥 Final Directive: God Mode 🖥️\n\nThis is it, Bitstorm.\n\nYou’ve made it deeper than anyone ever has. The data you uncovered in the last operation confirms what we feared — **this is the server**. The one. The digital vault holding nuclear launch codes.\n\nBut there’s a problem: you’re not root. And root is the only one holding the keys to the kingdom.\n\nDo you have access? No.\nDo we need access? Absolutely.\n\nThe Commander just gave the order: *\"Do whatever it takes.\"*\n\nYou’ve proven your skills time and time again. Now we need your best work. We need your privilege escalation game.\n\nThe enemy isn’t perfect. Maybe they forgot to patch something. Maybe a careless sysadmin left behind an insecure binary. A rogue SUID file. A misconfigured cron job. A hint of weakness is all you need — and we know you’ll find it.\n\nOnce you’re root, rip those codes out and secure the flag. This isn’t just a win for you. This is a win for the world.\n\nWe’re counting on you, soldier.\n\n**Root or nothing.** Oh, and one more things. Latest Intel says there's a user on the system with Admin privileges named TheGeneral. We expect the codes to be there."
+    },
+    {
+      "id": 6,
+      "act": "Game Over",
+      "level": "Army Cyber Operator",
+      "points": 1000,
+      "flag": "CTF{Pr1v_3sc@l@t1oN}",
+      "python_script_to_run": "game_over.py",
+      "story": "🎬 FINAL TRANSMISSION: OPERATION TERMINUS 🚨\n\n☢️ The vault is open. The codes are in hand. And the enemy — completely blind.\n\nThe moment your terminal displayed `root@EnemyServer#`, the tide of the digital war shifted forever. You moved like a ghost, elevated like a legend, and exfiltrated the world’s most dangerous secrets without leaving a trace.\n\nCommand just confirmed: All enemy uplinks have gone dark. Launch capabilities dismantled. Their control systems, corrupted beyond repair. Whatever threat they once posed... you neutralized it.\n\n🔥 You've completed what no operative before you could: infiltrate, decode, disrupt, and escape.\n\nAs the virtual dust settles, a quiet message comes through your secure line — one you've been waiting your entire life to hear:\n\n> \"Well done, Bitstorm. Mission complete. Welcome to the Shadow Core.\"\n\n📜 **Flag:** CTF{Pr1v_3sc@l@t1oN}\n\n👑 You didn’t just win the CTF. You just became part of a cyber-elite.\n\n🎖️ **Final Rank: UNSTOPPABLE.**\n\n💡 Pro tip: Share your victory screenshot, and tag it #BitstormCTF if you dare... but remember, legends usually vanish in silence.\n\n🪬 Game Over... or maybe just the beginning?"
+    }
+  ],
+  "bonus_flags": [
+    {
+      "flag": "ArmyCyberRocks",
+      "points": 5,
+      "message": "🪙 It sure does, but this isn't even a flag is it? Okay I'll give you 5 points for effort. You may want to remember this password for later though..."
+    },
+    {
+      "flag": "CTF{N1c3_C@tcH}",
+      "points": 25,
+      "message": "🪙 Nice Catch indeed!  But this is only a bonus flag, perhaps you have to dig deeper?"
+    },
+    {
+      "flag": "CTF{c4n_y0u_r34d_h1st0ry?}",
+      "points": 75,
+      "message": "🪙 You found a hidden cache! Nice recon work... always check the history."
+    },
+    {
+      "flag": "CTF{R1ck_R011}",
+      "points": 20,
+      "message": "🪙 Ahhhh... the classic Rick Roll - I'm so sorry about that, here's 20 points for your pain and suffering.",
+      "client_action": {
+        "type": "sequence",
+        "actions": [
+          {
+            "type": "set_volume",
+            "muted": false,
+            "volume_percent": 100
+          },
+          {
+            "type": "open_url",
+            "url": "https://rick.nerial.uk/video.mp4"
+          }
+        ]
+      }
+    },
+    {
+      "flag": "CTF{t3}",
+      "points": 75,
+      "message": "🪙 You found a hidden cache! That's some serious recon work."
+    },
+    {
+      "flag": "CTF{t4}",
+      "points": 75,
+      "message": "🪙 You found a hidden cache! That's some serious recon work."
+    }
+  ],
+  "initial_quiz": {
+    "completion_flag": "CTF{aced_that_test}",
+    "questions": [
+      {
+        "id": 1,
+        "narrative": "Cybersecurity professionals use CyberChef, the 'Cyber Swiss Army Knife,' to quickly analyze and decode complex data like obfuscated scripts, encoded payloads, or log files. With its drag-and-drop interface, they can apply operations such as Base64 decoding, decompression, and pattern extraction to uncover hidden threats. Because it runs entirely in the browser, sensitive data stays local—making it a powerful and trusted tool for threat hunting and incident response.\n\n\nSSdtIGhpZGluZyBmcm9tIHlvdSE=",
+        "question": "1️⃣ What encoding is the following string likely using? SSdtIGhpZGluZyBmcm9tIHlvdSE=",
+        "hint": "Open cyberchef and take a look!",
+        "options": [
+          "A. Binary",
+          "B. Hexadecimal",
+          "C. Base64",
+          "D. Decimal"
+        ],
+        "answer": "C"
+      },
+      {
+        "id": 2,
+        "narrative": "Cybersecurity professionals use Wireshark to capture and analyze network traffic in real time, helping them identify suspicious behavior, troubleshoot network issues, and detect signs of attacks. With its powerful filtering and deep packet inspection capabilities, they can examine protocols, trace connections, and uncover anomalies like unauthorized access or data exfiltration. Its visual interface and packet-level detail make Wireshark an essential tool for network forensics and threat analysis.",
+        "question": "2️⃣ Which type of network packet will be seen by anyone monitoring a network segment?",
+        "hint": "It's not C.  Don't pick that.  Those are packets that respond 'Nice firewall… totally not full of holes'",
+        "options": [
+          "A. Unicast",
+          "B. Broadcast",
+          "C. Sarcast",
+          "D. Multicast"
+        ],
+        "answer": "B"
+      },
+      {
+        "id": 3,
+        "narrative": "In cybersecurity, Linux commands are essential for navigating systems, analyzing threats, and responding to incidents. Commonly used commands include netstat and ss to inspect network connections, ps, top, and lsof to monitor running processes and open files, and grep, awk, and sed for parsing logs and data. Tools like find, chmod, and chown help manage file permissions during forensic analysis, while tcpdump and iptables are used for traffic capture and firewall configuration. Mastery of these commands allows cyber professionals to efficiently investigate and secure Linux-based systems.",
+        "question": "3️⃣ Which Linux command is used to search for patterns in text?",
+        "hint": "the answer has 100 letters (that's my binary brain speaking)",
+        "options": [
+          "A. awk",
+          "B. sed",
+          "C. grep",
+          "D. cut"
+        ],
+        "answer": "C"
+      },
+      {
+        "id": 4,
+        "narrative": "Cyber professionals use Python extensively for automating tasks, analyzing data, and developing custom tools. Its simplicity and vast library ecosystem make it ideal for writing scripts that scan networks, parse logs, detect malware, or exploit vulnerabilities during penetration testing. Python is also used to build security tools like port scanners, brute-force attackers, and forensic analyzers. Whether it's creating a quick script to analyze suspicious behavior or developing a full-featured security solution, Python is a go-to language in the cyber toolkit.",
+        "question": "4️⃣ Which file type is most likely to contain python code?",
+        "hint": "PYthon... c'mon man.",
+        "options": [
+          "A. .bash",
+          "B. .py",
+          "C. .exe",
+          "D. .sh"
+        ],
+        "answer": "B"
+      },
+      {
+        "id": 5,
+        "narrative": "Cybersecurity professionals use Netcat as a powerful and lightweight networking utility for reading and writing data across TCP or UDP connections. Often referred to as the 'Swiss Army knife' of networking, Netcat is used for tasks like port scanning, banner grabbing, transferring files, and even setting up reverse shells for remote access during penetration testing. Its versatility and simplicity make it a go-to tool in both offensive and defensive cyber operations.",
+        "question": "5️⃣ What is one common use of Netcat in cybersecurity?",
+        "hint": "Did you even read the paragraph above?",
+        "options": [
+          "A. Viewing encrypted email contents",
+          "B. Creating TCP or UDP connections for data transfer",
+          "C. Designing firewall rules with a GUI",
+          "D. Managing DNS records in the cloud"
+        ],
+        "answer": "B"
+      }
+    ]
+  },
+  "patch_version": "v2_quiz_api_server_side_answers",
+  "logging": {
+    "patch_version": "v3_unified_logging",
+    "log_file_source": "challenge_listener.py LOGFILE / CTF_LOGFILE",
+    "environment_variable_passed_to_scripts": "CTF_LOG_FILE",
+    "default_log_file": "/var/log/ctfuser/bitstorm_ctf.log",
+    "description": "The listener writes its own events and passes the same log path to every challenge script. Each script logs each major setup/cleanup/network step into the same file."
+  }
+}
