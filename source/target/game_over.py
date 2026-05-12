@@ -58,6 +58,7 @@ def kill_processes():
     try:
         result = subprocess.run(["ps", "aux"], capture_output=True, text=True, check=False)
         lines = result.stdout.splitlines()
+        killed_pids = set()
         for line in lines:
             for name in PROCESS_TARGETS:
                 if name in line and "python" in line:
@@ -65,8 +66,10 @@ def kill_processes():
                     if len(parts) < 2:
                         continue
                     pid = parts[1]
-                    log_step(SCRIPT_NAME, f"Killing {name} PID {pid}")
-                    subprocess.run(["kill", "-9", pid], check=False)
+                    if pid not in killed_pids:
+                        log_step(SCRIPT_NAME, f"Killing {name} PID {pid}")
+                        subprocess.run(["kill", "-9", pid], check=False)
+                        killed_pids.add(pid)
     except Exception as exc:
         log_exception(SCRIPT_NAME, "Failed to terminate CTF processes", exc)
 
