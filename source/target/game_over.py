@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-# PATCH_VERSION: v3
+# PATCH_VERSION: v4_dynamic_process_targets_from_challenges_json
 
 import datetime
-import grp
+import json
 import os
 import pwd
 import shutil
@@ -11,19 +11,18 @@ import subprocess
 from pathlib import Path
 from challenge_logging import get_log_file, log_command, log_exception, log_step
 
-SCRIPT_NAME = "game_over.py"
+SCRIPT_NAME = Path(__file__).name
+
 CTF_USERS = [
     "enemy",
     "TheGeneral",
     "CTF{w3_hav3_1n1t1@l_@cc3$$}",
     "ctfuser",
 ]
-LOG_SRC = "/var/log/ctfuser"
-ARCHIVE_DIR = "/srv/myCTF"
-PROCESS_TARGETS = [
-    "send_flag.py",
-    "bind_shell.py",
-]
+
+LOG_SRC = Path(os.environ.get("CTF_LOG_DIR", "/var/log/ctfuser"))
+ARCHIVE_DIR = Path(os.environ.get("CTF_ARCHIVE_DIR", "/srv/myCTF"))
+STORY_FILE = Path(os.environ.get("CTF_STORY_FILE", "challenges.json"))
 
 
 def run_command(cmd, *, check=True):
@@ -34,40 +33,109 @@ def run_command(cmd, *, check=True):
 
 def archive_logs():
     log_step(SCRIPT_NAME, f"Archiving logs from {LOG_SRC}; unified log is {get_log_file()}")
-    if not os.path.exists(LOG_SRC):
+    if not LOG_SRC.exists():
         log_step(SCRIPT_NAME, f"Log directory does not exist: {LOG_SRC}", "WARNING")
         return
 
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    target_dir = Path(ARCHIVE_DIR) / timestamp
+    target_dir = ARCHIVE_DIR / timestamp
     target_dir.mkdir(parents=True, exist_ok=True)
+
     copied = 0
-    for file in os.listdir(LOG_SRC):
-        full_path = Path(LOG_SRC) / file
-        if full_path.is_file():
-            shutil.copy2(full_path, target_dir)
+    for file_path in LOG_SRC.iterdir():
+        if file_path.is_file():
+            shutil.copy2(file_path, target_dir)
             copied += 1
-            log_step(SCRIPT_NAME, f"Archived log file: {full_path} -> {target_dir}")
+            log_step(SCRIPT_NAME, f"Archived log file: {file_path} -> {target_dir}")
     log_step(SCRIPT_NAME, f"Logs archived to {target_dir}; copied={copied}")
 
 
+def _safe_script_name(value):
+    """Return only simple local script basenames from challenges.json."""
+    if not isinstance(value, str):
+        return None
+    candidate = value.strip()
+    if not candidate or candidate != Path(candidate).name:
+        return None
+    if not candidate.endswith(".py"):
+        return None
+    return candidate
+
+
+def load_process_targets_from_story_file():
+    """
+    Read all challenge scripts from challenges.json and use those as process targets.
+
+    game_over excludes itself so cleanup does not kill the currently running cleanup process.
+    This means adding/removing challenge scripts in challenges.json automatically updates cleanup.
+    """
+    log_step(SCRIPT_NAME, f"Loading process targets from story file: {STORY_FILE}")
+
+    try:
+        with STORY_FILE.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        log_step(SCRIPT_NAME, f"Story file not found; no dynamic process targets loaded: {STORY_FILE}", "ERROR")
+        return []
+    except json.JSONDecodeError as exc:
+        log_exception(SCRIPT_NAME, f"Story file is invalid JSON: {STORY_FILE}", exc)
+        return []
+    except Exception as exc:
+        log_exception(SCRIPT_NAME, f"Failed to read story file: {STORY_FILE}", exc)
+        return []
+
+    challenges = data if isinstance(data, list) else data.get("challenges", [])
+    targets = []
+    seen = set()
+
+    for entry in challenges:
+        script = _safe_script_name(entry.get("python_script_to_run") if isinstance(entry, dict) else None)
+        if not script:
+            continue
+        if script == SCRIPT_NAME:
+            log_step(SCRIPT_NAME, f"Skipping current cleanup script in process targets: {script}")
+            continue
+        if script not in seen:
+            targets.append(script)
+            seen.add(script)
+
+    log_step(SCRIPT_NAME, f"Loaded process targets from challenges.json: {targets if targets else 'none'}")
+    return targets
+
+
 def kill_processes():
-    log_step(SCRIPT_NAME, "Terminating CTF-related background processes")
+    targets = load_process_targets_from_story_file()
+    if not targets:
+        log_step(SCRIPT_NAME, "No process targets found in challenges.json; skipping process termination", "WARNING")
+        return
+
+    log_step(SCRIPT_NAME, f"Terminating CTF-related background processes from challenges.json: {targets}")
+    killed_pids = set()
+
     try:
         result = subprocess.run(["ps", "aux"], capture_output=True, text=True, check=False)
         lines = result.stdout.splitlines()
-        killed_pids = set()
+
         for line in lines:
-            for name in PROCESS_TARGETS:
+            for name in targets:
                 if name in line and "python" in line:
                     parts = line.split()
                     if len(parts) < 2:
                         continue
                     pid = parts[1]
-                    if pid not in killed_pids:
-                        log_step(SCRIPT_NAME, f"Killing {name} PID {pid}")
-                        subprocess.run(["kill", "-9", pid], check=False)
-                        killed_pids.add(pid)
+                    if pid == str(os.getpid()):
+                        log_step(SCRIPT_NAME, f"Skipping own PID {pid}")
+                        continue
+                    if pid in killed_pids:
+                        log_step(SCRIPT_NAME, f"Skipping duplicate process match for PID {pid} ({name})")
+                        continue
+
+                    log_step(SCRIPT_NAME, f"Killing {name} PID {pid}")
+                    subprocess.run(["kill", "-9", pid], check=False)
+                    killed_pids.add(pid)
+                    break
+
+        log_step(SCRIPT_NAME, f"Process termination complete; killed_pids={sorted(killed_pids)}")
     except Exception as exc:
         log_exception(SCRIPT_NAME, "Failed to terminate CTF processes", exc)
 
@@ -100,7 +168,13 @@ def reset_find_permissions():
 
 def cleanup_environment():
     log_step(SCRIPT_NAME, "Cleaning up temporary challenge files")
-    tmp_files = ["/tmp/flag.txt", "/tmp/flag.zip", "/tmp/nuclear_with_comment.png", "/tmp/combined_nuclear.png", "/tmp/nuclear_codes.txt"]
+    tmp_files = [
+        "/tmp/flag.txt",
+        "/tmp/flag.zip",
+        "/tmp/nuclear_with_comment.png",
+        "/tmp/combined_nuclear.png",
+        "/tmp/nuclear_codes.txt",
+    ]
     for item in tmp_files:
         path = Path(item)
         try:
