@@ -29,7 +29,7 @@ from typing import Any
 
 HOST = os.environ.get("CTF_BIND_HOST", "0.0.0.0")
 PORT = int(os.environ.get("CTF_PORT", "65000"))
-LOGFILE = Path(os.environ.get("CTF_LOGFILE", "/var/log/ctfuser/bitstorm_ctf.log"))
+LOGFILE = Path(os.environ.get("CTF_LOGFILE", "/var/log/ctfuser/ctf.log"))
 STORY_FILE = Path(os.environ.get("CTF_STORY_FILE", "challenges.json"))
 ADMIN_TOKEN = os.environ.get("CTF_ADMIN_TOKEN", "")
 PYTHON = os.environ.get("CTF_PYTHON", sys.executable or "python3")
@@ -270,29 +270,103 @@ def restart_send_flag() -> dict[str, Any]:
     return {"ok": started, "message": "send_flag.py restarted" if started else "send_flag.py not started"}
 
 
+def get_cleanup_script() -> str | None:
+    """
+    Find the cleanup/game-over script from challenges.json instead of hardcoding game_over.py.
+    Prefer an entry whose script name contains 'game_over'.
+    """
+    for entry in get_challenges():
+        script = safe_script_name(entry.get("python_script_to_run"))
+        if script and "game_over" in script:
+            return script
+    return None
+
+
+def run_python_script_sync(script: str) -> bool:
+    """
+    Run a script synchronously and wait for it to complete.
+    Used for cleanup so replay does not race against game_over.py.
+    """
+    script = safe_script_name(script) or ""
+    if script not in get_all_scripts():
+        log_event(f"⚠️ Refused non-allowlisted script: {script}")
+        return False
+
+    script_path = Path.cwd() / script
+    if not script_path.is_file():
+        log_event(f"⚠️ Script not found: {script}")
+        return False
+
+    env = os.environ.copy()
+    env["CTF_LOG_FILE"] = str(LOGFILE)
+    env["CTF_LOGFILE"] = str(LOGFILE)
+    env["CTF_SCRIPT_NAME"] = script
+    env["CTF_STORY_FILE"] = str(STORY_FILE)
+
+    LOGFILE.parent.mkdir(parents=True, exist_ok=True)
+    with LOGFILE.open("a", encoding="utf-8", buffering=1) as log_handle:
+        log_event(f"→ Running script synchronously: {script} with unified log {LOGFILE}")
+        result = subprocess.run(
+            [PYTHON, str(script_path)],
+            cwd=str(Path.cwd()),
+            stdout=log_handle,
+            stderr=log_handle,
+            env=env,
+            check=False,
+        )
+
+    if result.returncode != 0:
+        log_event(f"⚠️ Script exited non-zero: {script}; returncode={result.returncode}", "WARNING")
+        return False
+
+    log_event(f"✅ Synchronous script completed: {script}")
+    return True
+
+
 def kill_all_scripts_and_cleanup(resume_to_id: int | None = None) -> dict[str, Any]:
-    log_event("🛠️ Admin issued restart_all")
+    log_event(f"🛠️ Admin issued restart_all; resume_to_id={resume_to_id}")
+
     stopped: list[str] = []
     started: list[str] = []
 
+    cleanup_script = get_cleanup_script()
+
     for script in sorted(get_all_scripts()):
-        if script == "game_over.py":
+        if cleanup_script and script == cleanup_script:
             continue
         kill_processes_matching_script(script)
         stopped.append(script)
 
-    if "game_over.py" in get_all_scripts():
-        if launch_python_script("game_over.py"):
-            started.append("game_over.py")
+    if cleanup_script:
+        if run_python_script_sync(cleanup_script):
+            started.append(cleanup_script)
+    else:
+        log_event("⚠️ No cleanup script found in challenges.json", "WARNING")
 
     if resume_to_id is not None:
-        for entry in get_challenges():
-            if int(entry.get("id", 0)) <= resume_to_id:
+        for entry in sorted(get_challenges(), key=lambda e: int(e.get("id", 0))):
+            challenge_id = int(entry.get("id", 0))
+            if challenge_id <= resume_to_id:
                 script = safe_script_name(entry.get("python_script_to_run"))
-                if script and script != "game_over.py" and launch_python_script(script):
+
+                if not script:
+                    continue
+
+                if cleanup_script and script == cleanup_script:
+                    log_event(f"Skipping cleanup script during replay: {script}")
+                    continue
+
+                if launch_python_script(script):
                     started.append(script)
 
-    return {"ok": True, "message": "restart_all complete", "stopped": stopped, "started": started, "resume_to_id": resume_to_id}
+    return {
+        "ok": True,
+        "message": "restart_all complete",
+        "stopped": stopped,
+        "started": started,
+        "cleanup_script": cleanup_script,
+        "resume_to_id": resume_to_id,
+    }
 
 
 def build_display_text(result: dict[str, Any]) -> str:
